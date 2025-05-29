@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KGPCC NFT Viewing Portal</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: black url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+      color: white;
+    }
+    header {
+      background: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+    .wallet-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
+    }
+    .wallet-buttons button {
+      background-color: #28a745;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .wallet-buttons button:hover {
+      background-color: #218838;
+    }
+    .wallet-status {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 1.1em;
+    }
+    .policy-buttons {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .group {
+      display: inline-block;
+      position: relative;
+      margin: 10px;
+    }
+    .group > button {
+      background-color: white;
+      color: black;
+      padding: 10px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      background-color: white;
+      color: black;
+      border-radius: 6px;
+      top: 100%;
+      left: 0;
+      min-width: 200px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+    .group:hover .dropdown,
+    .group:focus-within .dropdown {
+      display: block;
+    }
+    .dropdown button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .dropdown button:hover {
+      background-color: #ddd;
+    }
+    #nftGrid {
+      padding: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .nft-card {
+      background: #1a1a1a;
+      border: 2px solid #0f0;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 200px;
+    }
+    .nft-card img {
+      width: 100%;
+      border-radius: 6px;
+      cursor: zoom-in;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>KGPCC NFT Viewing Portal</h1>
+  </header>
+
+  <div class="wallet-buttons">
+    <button onclick="connectWallet('nami')">Connect Nami</button>
+    <button onclick="connectWallet('eternl')">Connect Eternl</button>
+    <button onclick="connectWallet('flint')">Connect Flint</button>
+    <button onclick="connectWallet('gerowallet')">Connect Gero</button>
+    <button onclick="connectWallet('typhoncip30')">Connect Typhon</button>
+    <button onclick="connectWallet('lace')">Connect Lace</button>
+  </div>
+
+  <div class="wallet-status" id="walletStatus">Wallet not connected.</div>
+
+  <div class="policy-buttons">
+    <div class="group">
+      <button>Alien Peace Force</button>
+      <div class="dropdown">
+        <button onclick="selectPolicy('66994445e6d5cbff664bc23cf3722b63e58fe97f1fd0887211936e7d')">Siege of Earth #1</button>
+        <button onclick="selectPolicy('4b8b283fc911f8f771161c61d44e5c55e82bc410847eca5f70770879')">PROMO Card #1</button>
+        <button onclick="selectPolicy('b85f5655782b5fc769a32a78ad02691856cfe2a52021d443932ee082')">OG Ring</button>
+      </div>
+    </div>
+    <div class="group">
+      <button onclick="selectPolicy('136d9b55d252c99469ea660e6baa51c068a172d41ef36f18999b69e0')">ADA Plates</button>
+    </div>
+  </div>
+
+  <div id="nftGrid"></div>
+
+  <script>
+    const BLOCKFROST_KEY = 'mainnetkzEic7M9hAWJE4XTgDgP94KOuNnywgn1';
+    let connectedWallet = null;
+    let walletApi = null;
+
+    async function connectWallet(walletKey) {
+      try {
+        if (!window.cardano || !window.cardano[walletKey]) {
+          alert(walletKey + " not found. Is the extension installed?");
+          return;
+        }
+        walletApi = await window.cardano[walletKey].enable();
+        const usedAddresses = await walletApi.getUsedAddresses();
+        connectedWallet = usedAddresses[0];
+        document.getElementById('walletStatus').innerText = "Connected: " + connectedWallet.slice(0, 16) + "...";
+      } catch (e) {
+        console.error(e);
+        alert("Failed to connect.");
+      }
+    }
+
+    async function selectPolicy(policyId) {
+      if (!connectedWallet) {
+        alert("Please connect a wallet first.");
+        return;
+      }
+
+      const nftGrid = document.getElementById("nftGrid");
+      nftGrid.innerHTML = "Loading NFTs...";
+
+      try {
+        const assets = await fetch(`https://cardano-mainnet.blockfrost.io/api/v0/addresses/${connectedWallet}/assets`, {
+          headers: { project_id: BLOCKFROST_KEY }
+        }).then(r => r.json());
+
+        const filtered = assets.filter(a => a.unit.startsWith(policyId));
+        if (filtered.length === 0) {
+          nftGrid.innerHTML = "No NFTs found.";
+          return;
+        }
+
+        nftGrid.innerHTML = "";
+        for (const asset of filtered) {
+          const id = asset.unit;
+          const metadata = await fetch(`https://cardano-mainnet.blockfrost.io/api/v0/assets/${id}`, {
+            headers: { project_id: BLOCKFROST_KEY }
+          }).then(r => r.json());
+
+          const name = metadata.onchain_metadata?.name || "Unnamed NFT";
+          const image = metadata.onchain_metadata?.image?.replace("ipfs://", "https://ipfs.io/ipfs/") || "";
+
+          const card = document.createElement("div");
+          card.className = "nft-card";
+
+          const img = document.createElement("img");
+          img.src = image;
+          img.onclick = () => {
+            const win = window.open();
+            win.document.write(`<img src="${image}" style="width:100%">`);
+          };
+
+          const label = document.createElement("div");
+          label.innerText = name;
+
+          card.appendChild(img);
+          card.appendChild(label);
+          nftGrid.appendChild(card);
+        }
+
+      } catch (e) {
+        console.error(e);
+        nftGrid.innerHTML = "Error loading NFTs.";
+      }
+    }
+  </script>
+
+</body>
+</html>
