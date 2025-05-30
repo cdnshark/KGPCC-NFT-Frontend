@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KGPCC NFT Viewing Portal</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://raw.githubusercontent.com/cdnshark/KGPCC-NFT-Frontend/main/A_seamless,_tileable_digital_image_depicts_a_star-.png') repeat;
+      background-size: 800px;
+      color: white;
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    .wallet-section {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #connectMain {
+      background-color: #007BFF;
+      color: white;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1.1em;
+    }
+
+    #disconnectBtn {
+      background-color: #dc3545;
+      color: white;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1.1em;
+      margin-left: 15px;
+      display: none;
+    }
+
+    .wallet-options {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      pointer-events: none;
+    }
+
+    .wallet-button {
+      position: absolute;
+      width: 60px; /* 40% smaller than 100px */
+      height: 60px;
+      background: #333;
+      border: 2px solid white;
+      border-radius: 50%;
+      color: white;
+      text-align: center;
+      line-height: 60px;
+      font-size: 0.8em;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      cursor: pointer;
+      pointer-events: auto;
+      display: none;
+    }
+
+    .wallet-status {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 1.1em;
+    }
+
+    .policy-buttons {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .policy-buttons .group {
+      display: inline-block;
+      position: relative;
+      margin: 10px;
+    }
+
+    .group button {
+      background-color: white;
+      color: black;
+      padding: 10px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      background-color: white;
+      color: black;
+      border-radius: 6px;
+      top: 45px;
+      left: 0;
+      width: max-content;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+
+    .group:hover .dropdown {
+      display: block;
+    }
+
+    .dropdown button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .dropdown button:hover {
+      background-color: #ddd;
+    }
+
+    #nftGrid {
+      padding: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .inventory-box {
+      width: 180px;
+      height: 180px;
+      background-color: #004d00;
+      border: 3px dashed #0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #0f0;
+      font-weight: bold;
+      border-radius: 10px;
+    }
+
+    /* UFO "APF Home" button in top-right */
+    #apfHomeBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: radial-gradient(circle at center, #ccc, #666);
+      color: black;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      text-align: center;
+      line-height: 80px;
+      box-shadow: 0 0 10px #0f0;
+      cursor: pointer;
+      font-size: 0.8em;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>KGPCC NFT Viewing Portal</h1>
+  <a id="apfHomeBtn" href="https://www.alienpeaceforce.com" target="_blank">APF<br>Home</a>
+</header>
+
+<div class="wallet-section">
+  <button id="connectMain" onclick="toggleWalletOptions()">Connect Crypto Wallet</button>
+  <button id="disconnectBtn" onclick="disconnectWallet()">Disconnect Wallet</button>
+  <div class="wallet-options" id="walletOptions"></div>
+</div>
+
+<div class="wallet-status" id="walletStatus">Wallet not connected.</div>
+
+<div class="policy-buttons">
+  <div class="group">
+    <button>Alien Peace Force</button>
+    <div class="dropdown">
+      <button onclick="selectPolicy('66994445e6d5cbff664bc23cf3722b63e58fe97f1fd0887211936e7d')">Siege of Earth #1</button>
+      <button onclick="selectPolicy('4b8b283fc911f8f771161c61d44e5c55e82bc410847eca5f70770879')">PROMO Card #1</button>
+      <button onclick="selectPolicy('b85f5655782b5fc769a32a78ad02691856cfe2a52021d443932ee082')">OG Ring</button>
+    </div>
+  </div>
+  <div class="group">
+    <button onclick="selectPolicy('136d9b55d252c99469ea660e6baa51c068a172d41ef36f18999b69e0')">ADA Plates</button>
+  </div>
+</div>
+
+<div id="nftGrid">
+  <div class="inventory-box">Empty</div>
+  <div class="inventory-box">Empty</div>
+  <div class="inventory-box">Empty</div>
+</div>
+
+<script>
+const walletNames = ["eternl", "flint", "gerowallet", "typhoncip30", "lace"];
+const walletLabels = {
+  eternl: "Eternl",
+  flint: "Flint",
+  gerowallet: "Gero",
+  typhoncip30: "Typhon",
+  lace: "Lace"
+};
+
+let connectedWallet = null;
+let walletApi = null;
+
+function toggleWalletOptions() {
+  const options = document.getElementById('walletOptions');
+  options.innerHTML = '';
+  const radius = 90;
+  const count = walletNames.length;
+  walletNames.forEach((key, i) => {
+    const angle = (2 * Math.PI * i) / count;
+    const x = 100 + radius * Math.cos(angle) - 30;
+    const y = 100 + radius * Math.sin(angle) - 30;
+    const btn = document.createElement("div");
+    btn.className = "wallet-button";
+    btn.style.left = `${x}px`;
+    btn.style.top = `${y}px`;
+    btn.innerText = walletLabels[key];
+    btn.onclick = () => connectWallet(key);
+    options.appendChild(btn);
+    setTimeout(() => { btn.style.display = 'block'; }, 10);
+  });
+}
+
+function connectWallet(key) {
+  if (!window.cardano || !window.cardano[key]) {
+    alert(`${walletLabels[key]} not found. Is the extension installed?`);
+    return;
+  }
+
+  const wallet = window.cardano[key];
+
+  wallet.enable()
+    .then(api => {
+      walletApi = api;
+      return api.getUsedAddresses();
+    })
+    .then(addresses => {
+      if (!addresses.length) throw new Error("No addresses returned");
+      connectedWallet = addresses[0];
+      document.getElementById('walletStatus').innerText = "Connected: " + connectedWallet.slice(0, 16) + "...";
+      document.getElementById('disconnectBtn').style.display = 'inline-block';
+      document.getElementById('walletOptions').innerHTML = '';
+    })
+    .catch(err => {
+      console.error("Connection failed:", err);
+      alert("Wallet connection failed.");
+    });
+}
+
+function disconnectWallet() {
+  connectedWallet = null;
+  walletApi = null;
+  document.getElementById('walletStatus').innerText = "Wallet not connected.";
+  document.getElementById('disconnectBtn').style.display = 'none';
+}
+
+// Placeholder for selectPolicy function logic (real NFT fetch logic should go here)
+function selectPolicy(policyId) {
+  console.log("Selected Policy ID:", policyId);
+  // Simulated fetch for NFTs
+  const nftCount = Math.floor(Math.random() * 6) + 1; // simulate 1-6 NFTs
+
+  const nftGrid = document.getElementById('nftGrid');
+  nftGrid.innerHTML = '';
+  const totalBoxes = Math.max(3, nftCount);
+
+  for (let i = 0; i < totalBoxes; i++) {
+    const box = document.createElement('div');
+    box.className = 'inventory-box';
+    box.innerText = i < nftCount ? `NFT ${i+1}` : 'Empty';
+    nftGrid.appendChild(box);
+  }
+
+  // Show detection message under wallet address
+  const status = document.getElementById('walletStatus');
+  status.innerHTML = status.innerHTML + `<br>${nftCount} NFTs detected.`;
+}
+</script>
+
+</body>
+</html>
